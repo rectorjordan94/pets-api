@@ -40,6 +40,27 @@ router.post('/toys/:petId', removeBlanks, (req, res, next) => {
 
 //* PATCH -> update a toy
 // PATCH /toys/:petId/:toyId
+router.patch('/toys/:petId/:toyId', requireToken, removeBlanks, (req, res, next) => {
+    // get and save the id's to variables
+    const petId = req.params.petId
+    const toyId = req.params.toyId
+    // find our pet
+    Pet.findById(petId)
+        .then(handle404)
+        .then(pet => {
+            // single out the toy
+            const theToy = pet.toys.id(toyId)
+            // make sure the user is the pet's owner
+            requireOwnership(req, pet)
+            // update accordingly
+            theToy.set(req.body.toy)
+            // save the pet
+            return pet.save()
+        })
+        // send a status
+        .then(() => res.sendStatus(204))
+        .catch(next)
+})
 
 //* DELETE -> destroy a toy
 // DELETE /toys/:petId/:toyId
