@@ -64,7 +64,27 @@ router.patch('/toys/:petId/:toyId', requireToken, removeBlanks, (req, res, next)
 
 //* DELETE -> destroy a toy
 // DELETE /toys/:petId/:toyId
-
+router.delete('/toys/:petId/:toyId', requireToken, (req, res, next) => {
+    const petId = req.params.petId
+    const toyId = req.params.toyId
+    // find the pet
+    Pet.findById(petId)
+        .then(handle404)
+        .then(pet => {
+            // grab the specific toy using its id
+            const theToy = pet.toys.id(toyId)
+            // make sure the user is the owner of the pet
+            requireOwnership(req, pet)
+            // call remove on our toy subdoc
+            theToy.remove()
+            // return the saved pet
+            return pet.save()
+        })
+        // send a response
+        .then(() => res.sendStatus(204))
+        // pass errors to our error handler (using next)
+        .catch(next)
+})
 
 //! Export Router
 module.exports = router
