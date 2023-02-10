@@ -45,4 +45,15 @@ petSchema.virtual('fullTitle').get(function () {
 	return `${this.name} the ${this.type}`
 })
 
+// this virtual will tell whether the pet is a baby or not based on its age
+petSchema.virtual('isABaby').get(function () {
+	if (this.age < 5) {
+		return `Yeah, they're just a baby`
+	} else if (this.age >= 5 && this.age < 10) {
+		return 'Not really a baby, but still a baby'
+	} else {
+		return 'Old grumpy bastard'
+	}
+})
+
 module.exports = mongoose.model('Example', petSchema)
